@@ -1,0 +1,58 @@
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Violence Detector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    #waveform {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 5px;
+    }
+    button {
+      margin-top: 5px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h2>Upload an audio file</h2>
+  <input type="file" id="uploadBtn" accept="audio/*" />
+  <div id="waveform"></div>
+  <div id="result">Waiting for result...</div>
+  <script src="https://unpkg.com/wavesurfer.js@6.6.4"></script>
+  <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/plugin/wavesurfer.regions.min.js"></script>
+  
+  < IMPORTANT: use ES module syntax to allow script.js to import WaveSurfer 
+  <script  src="script.js"></script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crying/Screaming Detector</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #waveform { margin-top: 20px; border: 1px solid #ccc; height: 100px; }
+    button { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h2>Upload Audio File</h2>
+  <input type="file" id="uploadBtn" accept="audio/*" />
+  <div id="waveform"></div>
+  <div id="result">Waiting for result...</div>
+
+  <!-- WaveSurfer v6 for plugin compatibility -->
+  <script src="https://unpkg.com/wavesurfer.js@6.6.4"></script>
+  <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/plugin/wavesurfer.regions.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
