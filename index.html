@@ -37,22 +37,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crying/Screaming Detector</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <meta name="theme-color" content="#007BFF" />
   <style>
-    body { font-family: Arial; padding: 20px; }
-    #waveform { margin-top: 20px; border: 1px solid #ccc; height: 100px; }
-    button { margin: 5px 0; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0 15px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px 0 10px;
+      background: #007BFF;
+      color: white;
+      border-radius: 0 0 10px 10px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    #upload-section {
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    #uploadBtn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    #waveform {
+      margin-top: 15px;
+      height: 100px;
+      background: #e9ecef;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+
+    button.play-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 10px;
+      background-color: #28a745;
+      color: white;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .segment-info {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
-  <h2>Upload Audio File</h2>
-  <input type="file" id="uploadBtn" accept="audio/*" />
-  <div id="waveform"></div>
-  <div id="result">Waiting for result...</div>
 
-  <!-- WaveSurfer v6 for plugin compatibility -->
+  <header>
+    <h1>Sound Alert Detector</h1>
+  </header>
+
+  <div id="upload-section">
+    <input type="file" id="uploadBtn" accept="audio/*" />
+    <div id="waveform"></div>
+  </div>
+
+  <div id="result">Upload a file to begin.</div>
+
+  <footer>All processing is done on your device. No files are uploaded.</footer>
+
+  <!-- WaveSurfer -->
   <script src="https://unpkg.com/wavesurfer.js@6.6.4"></script>
   <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/plugin/wavesurfer.regions.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('✅ Service Worker registered'))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+  </script>
+
 </body>
 </html>
+
