@@ -48,7 +48,7 @@ async function processAudioFile(file) {
 
     const frameSize = 512;
     const sampleRate = audioBuffer.sampleRate;
-    const threshold = 0.06;
+    const threshold = 0.1;
     const events = [];
 
     for (let i = 0; i < data.length; i += frameSize) {
