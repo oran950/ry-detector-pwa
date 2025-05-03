@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cache-v2'; // Update version on each deployment
+const CACHE_NAME = 'cache-v3'; // match the version
 
 const FILES_TO_CACHE = [
   '/',
