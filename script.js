@@ -50,11 +50,12 @@ async function processAudioFile(file) {
 
     const frameSize = 2048;
     const sampleRate = audioBuffer.sampleRate;
-    const threshold = 0.9;
+    const threshold = 0.09;
     const minDurationSec = 5;
     const minFrames = Math.floor((minDurationSec * sampleRate) / frameSize);
+    const maxGapSec = 0.5;
 
-    const events = [];
+    let rawEvents = [];
     let currentStart = null;
     let frameCount = 0;
     let lastLoudFrameIndex = 0;
@@ -76,17 +77,10 @@ async function processAudioFile(file) {
             if (currentStart !== null) {
                 const endTime = lastLoudFrameIndex / sampleRate;
                 const duration = endTime - currentStart;
-
-                console.log(`⛔ Segment ended`);
-                console.log(`Start: ${currentStart.toFixed(2)}, End: ${endTime.toFixed(2)}, Duration: ${duration.toFixed(2)}, Frames: ${frameCount}`);
-
-                if (frameCount >= minFrames && duration >= minDurationSec) {
-                    events.push({ start: currentStart, end: endTime, energy });
-                    console.log("✅ Pushed valid loud event");
-                } else {
-                    console.log("❌ Ignored (too short)");
+                if (frameCount >= 1) {
+                    rawEvents.push({ start: currentStart, end: endTime });
+                    console.log("⛔ Loud chunk added:", currentStart.toFixed(2), endTime.toFixed(2), duration.toFixed(2));
                 }
-
                 currentStart = null;
                 frameCount = 0;
             }
@@ -96,25 +90,37 @@ async function processAudioFile(file) {
     if (currentStart !== null) {
         const endTime = lastLoudFrameIndex / sampleRate;
         const duration = endTime - currentStart;
-
-        console.log(`⏹ Final Segment Check`);
-        console.log(`Start: ${currentStart.toFixed(2)}, End: ${endTime.toFixed(2)}, Duration: ${duration.toFixed(2)}, Frames: ${frameCount}`);
-
-        if (frameCount >= minFrames && duration >= minDurationSec) {
-            events.push({ start: currentStart, end: endTime, energy: 1.0 });
-            console.log("✅ Final Event ADDED");
-        } else {
-            console.log("❌ Final Event IGNORED");
+        if (frameCount >= 1) {
+            rawEvents.push({ start: currentStart, end: endTime });
+            console.log("⛔ Final loud chunk added:", currentStart.toFixed(2), endTime.toFixed(2), duration.toFixed(2));
         }
     }
 
-    if (events.length === 0) {
+    // Merge nearby events
+    const mergedEvents = [];
+    for (let i = 0; i < rawEvents.length; i++) {
+        const current = rawEvents[i];
+        if (mergedEvents.length === 0) {
+            mergedEvents.push({ ...current });
+        } else {
+            const last = mergedEvents[mergedEvents.length - 1];
+            if (current.start - last.end <= maxGapSec) {
+                last.end = current.end;
+            } else {
+                mergedEvents.push({ ...current });
+            }
+        }
+    }
+
+    const finalEvents = mergedEvents.filter(evt => (evt.end - evt.start) >= minDurationSec);
+
+    if (finalEvents.length === 0) {
         resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
     }
 
-    resultDiv.innerHTML = `<strong>${events.length} loud event(s) detected:</strong><br>`;
-    events.forEach((evt) => {
+    resultDiv.innerHTML = `<strong>${finalEvents.length} loud event(s) detected:</strong><br>`;
+    finalEvents.forEach((evt) => {
         wavesurfer.addRegion({
             start: evt.start,
             end: evt.end,
