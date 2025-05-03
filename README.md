@@ -21,4 +21,3 @@ JavaScript (AudioContext API)
 
 HTML/CSS for responsive UI
 
-Optional: Python librosa version for comparison and testing
