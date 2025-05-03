@@ -131,30 +131,40 @@ async function processAudioFile(file) {
         btn.className = "play-btn";
         btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
 
-        let isPlaying = false;
-
         btn.onclick = () => {
-            if (!isPlaying) {
-                wavesurfer.play(evt.start, evt.end);
-                btn.textContent = `⏸ Pause ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-                isPlaying = true;
+            const regionStart = evt.start;
+            const regionEnd = evt.end;
 
-                const checkInterval = setInterval(() => {
-                    const currentTime = wavesurfer.getCurrentTime();
-                    if (!wavesurfer.isPlaying() || currentTime >= evt.end) {
-                        clearInterval(checkInterval);
-                        btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-                        isPlaying = false;
-                    }
-                }, 200);
-            } else {
+            if (wavesurfer.isPlaying()) {
                 wavesurfer.pause();
-                btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-                isPlaying = false;
+                btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                return;
             }
+
+            wavesurfer.play(regionStart, regionEnd);
+            btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+
+            const intervalId = setInterval(() => {
+                const currentTime = wavesurfer.getCurrentTime();
+                if (!wavesurfer.isPlaying() || currentTime >= regionEnd) {
+                    clearInterval(intervalId);
+                    btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                }
+            }, 300);
         };
 
         resultDiv.appendChild(text);
         resultDiv.appendChild(btn);
+    });
+}
+
+// Service worker version busting + reload on controller change
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(err => console.error("❌ SW registration failed:", err));
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
     });
 }
