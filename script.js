@@ -24,11 +24,12 @@ document.getElementById("recordBtn").addEventListener("click", async () => {
         processAudioFile(blob);
     };
     mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), 7000); // 7 sec
+    setTimeout(() => mediaRecorder.stop(), 7000); // record 7 seconds
 });
 
 async function processAudioFile(file) {
     if (wavesurfer) wavesurfer.destroy();
+
     wavesurfer = WaveSurfer.create({
         container: '#waveform',
         waveColor: 'gray',
@@ -36,6 +37,7 @@ async function processAudioFile(file) {
         height: 100,
         plugins: [ WaveSurfer.regions.create() ]
     });
+
     wavesurfer.load(URL.createObjectURL(file));
 
     const resultDiv = document.getElementById("result");
@@ -48,8 +50,13 @@ async function processAudioFile(file) {
 
     const frameSize = 512;
     const sampleRate = audioBuffer.sampleRate;
-    const threshold = 0.1;
+    const threshold = 0.1; 
+    const minDurationSec = 5;
+    const minFrames = Math.floor((minDurationSec * sampleRate) / frameSize);
+
     const events = [];
+    let currentStart = null;
+    let frameCount = 0;
 
     for (let i = 0; i < data.length; i += frameSize) {
         const slice = data.slice(i, i + frameSize);
@@ -57,24 +64,44 @@ async function processAudioFile(file) {
         const time = i / sampleRate;
 
         if (energy > threshold) {
-            const start = Math.max(0, time - 0.25);
-            const end = time + 0.25;
-            if (!events.length || start - events[events.length - 1].end > 1) {
-                events.push({ start, end, energy });
+            if (currentStart === null) {
+                currentStart = time;
+                frameCount = 1;
+            } else {
+                frameCount++;
             }
+        } else {
+            if (currentStart !== null && frameCount >= minFrames) {
+                const end = time;
+                events.push({ start: currentStart, end, energy });
+            }
+            currentStart = null;
+            frameCount = 0;
         }
     }
 
+    // Handle case where audio ends during a loud event
+    if (currentStart !== null && frameCount >= minFrames) {
+        const end = data.length / sampleRate;
+        events.push({ start: currentStart, end, energy: 1.0 });
+    }
+
+    // Results
     if (events.length === 0) {
-        resultDiv.innerHTML = "✅ No loud sounds detected.";
+        resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
     }
 
     resultDiv.innerHTML = `<strong>${events.length} loud event(s) detected:</strong><br>`;
     events.forEach((evt) => {
-        wavesurfer.addRegion({ start: evt.start, end: evt.end, color: 'rgba(255,0,0,0.4)' });
+        wavesurfer.addRegion({
+            start: evt.start,
+            end: evt.end,
+            color: 'rgba(255, 0, 0, 0.4)'
+        });
+
         const text = document.createElement("div");
-        text.textContent = `${toMMSS(evt.start)} - ${toMMSS(evt.end)} (volume: ${evt.energy.toFixed(3)})`;
+        text.textContent = `${toMMSS(evt.start)} - ${toMMSS(evt.end)} (duration: ${(evt.end - evt.start).toFixed(2)}s)`;
 
         const btn = document.createElement("button");
         btn.className = "play-btn";
