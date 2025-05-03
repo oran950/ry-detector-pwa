@@ -1,5 +1,6 @@
 let wavesurfer;
 let mediaRecorder;
+console.log("✅ script.js successfully loaded!");
 
 function toMMSS(seconds) {
     const m = Math.floor(seconds / 60);
