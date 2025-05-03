@@ -79,7 +79,6 @@ async function processAudioFile(file) {
                 const duration = endTime - currentStart;
                 if (frameCount >= 1) {
                     rawEvents.push({ start: currentStart, end: endTime });
-                    console.log("⛔ Loud chunk added:", currentStart.toFixed(2), endTime.toFixed(2), duration.toFixed(2));
                 }
                 currentStart = null;
                 frameCount = 0;
@@ -89,10 +88,8 @@ async function processAudioFile(file) {
 
     if (currentStart !== null) {
         const endTime = lastLoudFrameIndex / sampleRate;
-        const duration = endTime - currentStart;
         if (frameCount >= 1) {
             rawEvents.push({ start: currentStart, end: endTime });
-            console.log("⛔ Final loud chunk added:", currentStart.toFixed(2), endTime.toFixed(2), duration.toFixed(2));
         }
     }
 
