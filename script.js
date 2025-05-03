@@ -128,33 +128,28 @@ async function processAudioFile(file) {
 
         const btn = document.createElement("button");
         btn.className = "play-btn";
-
-        let isPlaying = false;
         btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
 
         btn.onclick = () => {
             const regionStart = evt.start;
             const regionEnd = evt.end;
 
-            if (!isPlaying) {
-                wavesurfer.play(regionStart, regionEnd);
-                btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-                isPlaying = true;
-
-                const checkInterval = setInterval(() => {
-                    const currentTime = wavesurfer.getCurrentTime();
-                    if (currentTime >= regionEnd || !wavesurfer.isPlaying()) {
-                        wavesurfer.pause();
-                        btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-                        isPlaying = false;
-                        clearInterval(checkInterval);
-                    }
-                }, 200);
-            } else {
+            if (wavesurfer.isPlaying()) {
                 wavesurfer.pause();
                 btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-                isPlaying = false;
+                return;
             }
+
+            wavesurfer.play(regionStart, regionEnd);
+            btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+
+            const intervalId = setInterval(() => {
+                const currentTime = wavesurfer.getCurrentTime();
+                if (!wavesurfer.isPlaying() || currentTime >= regionEnd) {
+                    clearInterval(intervalId);
+                    btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                }
+            }, 200);
         };
 
         resultDiv.appendChild(text);
