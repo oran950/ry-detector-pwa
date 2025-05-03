@@ -71,7 +71,7 @@ async function processAudioFile(file) {
             } else {
                 frameCount++;
             }
-            lastLoudFrameIndex = i + frameSize;
+                lastLoudFrameIndex = i;
         } else {
             if (currentStart !== null) {
                 const endTime = lastLoudFrameIndex / sampleRate;
