@@ -3,7 +3,7 @@
 
 
 🔊 Local Loud Audio Detector – Browser-Based
-This project is a fully local web application that detects loud crying or screaming in audio files, running entirely in the browser with no backend or server required. Originally built in Python using librosa, it has been rewritten in JavaScript for mobile-friendly, offline use as a Progressive Web App (PWA).
+This project is a fully local web application that detects loud crying or screaming in audio files, running entirely in the browser with no backend or server required. It has been written in JavaScript for mobile-friendly, offline use as a Progressive Web App (PWA).
 
 🔹 Features:
 
