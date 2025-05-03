@@ -24,7 +24,7 @@ document.getElementById("recordBtn").addEventListener("click", async () => {
         processAudioFile(blob);
     };
     mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), 7000); // record 7 seconds
+    setTimeout(() => mediaRecorder.stop(), 7000);
 });
 
 async function processAudioFile(file) {
@@ -56,6 +56,7 @@ async function processAudioFile(file) {
 
     const events = [];
     let currentStart = null;
+    let currentStartIndex = 0;
     let frameCount = 0;
 
     for (let i = 0; i < data.length; i += frameSize) {
@@ -66,24 +67,27 @@ async function processAudioFile(file) {
         if (energy > threshold) {
             if (currentStart === null) {
                 currentStart = time;
+                currentStartIndex = i;
                 frameCount = 1;
             } else {
                 frameCount++;
             }
         } else {
             if (currentStart !== null) {
-                const end = time;
+                const end = i / sampleRate;
                 const duration = end - currentStart;
+
                 if (frameCount >= minFrames && duration >= minDurationSec) {
                     events.push({ start: currentStart, end, energy });
                 }
+
+                currentStart = null;
+                frameCount = 0;
             }
-            currentStart = null;
-            frameCount = 0;
         }
     }
 
-    // Final check in case loud event runs to the end of the file
+    // Final segment check
     if (currentStart !== null) {
         const end = data.length / sampleRate;
         const duration = end - currentStart;
@@ -92,7 +96,7 @@ async function processAudioFile(file) {
         }
     }
 
-    // Show results
+    // Display events
     if (events.length === 0) {
         resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
