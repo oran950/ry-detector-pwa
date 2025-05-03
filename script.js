@@ -50,7 +50,7 @@ async function processAudioFile(file) {
 
     const frameSize = 512;
     const sampleRate = audioBuffer.sampleRate;
-    const threshold = 1;
+    const threshold = 35;
     const minDurationSec = 5;
     const minFrames = Math.floor((minDurationSec * sampleRate) / frameSize);
 
