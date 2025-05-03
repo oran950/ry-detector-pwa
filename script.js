@@ -134,11 +134,14 @@ async function processAudioFile(file) {
         btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
         
         btn.onclick = () => {
-          if (!isPlaying) {
+          if (!isPlaying)
+           {
             wavesurfer.play(evt.start, evt.end);
             btn.textContent = `⏸ Pause ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
             isPlaying = true;
-          } else {
+          } 
+          else 
+          {
             wavesurfer.pause();
             btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
             isPlaying = false;
