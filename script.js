@@ -93,7 +93,6 @@ async function processAudioFile(file) {
         }
     }
 
-    // Merge nearby events
     const mergedEvents = [];
     for (let i = 0; i < rawEvents.length; i++) {
         const current = rawEvents[i];
@@ -127,30 +126,36 @@ async function processAudioFile(file) {
         const text = document.createElement("div");
         text.textContent = `${toMMSS(evt.start)} - ${toMMSS(evt.end)} (duration: ${(evt.end - evt.start).toFixed(2)}s)`;
 
-const btn = document.createElement("button");
-btn.className = "play-btn";
+        const btn = document.createElement("button");
+        btn.className = "play-btn";
 
-let isPlaying = false;
-btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
+        let isPlaying = false;
+        btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
 
-btn.onclick = () => {
-  if (!isPlaying) {
-    wavesurfer.play(evt.start, evt.end);
-    btn.textContent = `⏸ Pause ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-    isPlaying = true;
+        btn.onclick = () => {
+            const regionStart = evt.start;
+            const regionEnd = evt.end;
 
-    // Attach 'finish' only when playing
-    wavesurfer.once('finish', () => {
-      btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-      isPlaying = false;
-    });
-  } else {
-    wavesurfer.pause();
-    btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
-    isPlaying = false;
-  }
-};
+            if (!isPlaying) {
+                wavesurfer.play(regionStart, regionEnd);
+                btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                isPlaying = true;
 
+                const checkInterval = setInterval(() => {
+                    const currentTime = wavesurfer.getCurrentTime();
+                    if (currentTime >= regionEnd || !wavesurfer.isPlaying()) {
+                        wavesurfer.pause();
+                        btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                        isPlaying = false;
+                        clearInterval(checkInterval);
+                    }
+                }, 200);
+            } else {
+                wavesurfer.pause();
+                btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+                isPlaying = false;
+            }
+        };
 
         resultDiv.appendChild(text);
         resultDiv.appendChild(btn);
