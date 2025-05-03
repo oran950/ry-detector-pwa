@@ -56,8 +56,8 @@ async function processAudioFile(file) {
 
     const events = [];
     let currentStart = null;
-    let currentStartIndex = 0;
     let frameCount = 0;
+    let lastLoudFrameIndex = 0;
 
     for (let i = 0; i < data.length; i += frameSize) {
         const slice = data.slice(i, i + frameSize);
@@ -67,36 +67,33 @@ async function processAudioFile(file) {
         if (energy > threshold) {
             if (currentStart === null) {
                 currentStart = time;
-                currentStartIndex = i;
                 frameCount = 1;
             } else {
                 frameCount++;
             }
+            lastLoudFrameIndex = i + frameSize; // keep track of end of loud
         } else {
             if (currentStart !== null) {
-                const end = i / sampleRate;
-                const duration = end - currentStart;
-
+                const endTime = lastLoudFrameIndex / sampleRate;
+                const duration = endTime - currentStart;
                 if (frameCount >= minFrames && duration >= minDurationSec) {
-                    events.push({ start: currentStart, end, energy });
+                    events.push({ start: currentStart, end: endTime, energy });
                 }
-
                 currentStart = null;
                 frameCount = 0;
             }
         }
     }
 
-    // Final segment check
+    // final check if audio ends during loud segment
     if (currentStart !== null) {
-        const end = data.length / sampleRate;
-        const duration = end - currentStart;
+        const endTime = lastLoudFrameIndex / sampleRate;
+        const duration = endTime - currentStart;
         if (frameCount >= minFrames && duration >= minDurationSec) {
-            events.push({ start: currentStart, end, energy: 1.0 });
+            events.push({ start: currentStart, end: endTime, energy: 1.0 });
         }
     }
 
-    // Display events
     if (events.length === 0) {
         resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
