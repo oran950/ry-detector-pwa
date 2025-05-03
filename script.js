@@ -130,27 +130,34 @@ async function processAudioFile(file) {
         btn.className = "play-btn";
         btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
 
-        btn.onclick = () => {
-            const regionStart = evt.start;
-            const regionEnd = evt.end;
+btn.onclick = () => {
+    const regionStart = evt.start;
+    const regionEnd = evt.end;
 
-            if (wavesurfer.isPlaying()) {
-                wavesurfer.pause();
-                btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-                return;
-            }
+    console.log("🎧 Button clicked. Attempting to play:", regionStart, regionEnd);
 
-            wavesurfer.play(regionStart, regionEnd);
-            btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+    if (wavesurfer.isPlaying()) {
+        console.log("🔇 Already playing. Now pausing.");
+        wavesurfer.pause();
+        btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+        return;
+    }
 
-            const intervalId = setInterval(() => {
-                const currentTime = wavesurfer.getCurrentTime();
-                if (!wavesurfer.isPlaying() || currentTime >= regionEnd) {
-                    clearInterval(intervalId);
-                    btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-                }
-            }, 200);
-        };
+    wavesurfer.play(regionStart, regionEnd);
+    btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+    console.log("▶️ Play requested");
+
+    const intervalId = setInterval(() => {
+        const currentTime = wavesurfer.getCurrentTime();
+        console.log("⏱️ Checking playback:", currentTime.toFixed(2), "/", regionEnd.toFixed(2));
+        if (!wavesurfer.isPlaying() || currentTime >= regionEnd) {
+            clearInterval(intervalId);
+            btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
+            console.log("⏹️ Playback ended or stopped.");
+        }
+    }, 300);
+};
+
 
         resultDiv.appendChild(text);
         resultDiv.appendChild(btn);
