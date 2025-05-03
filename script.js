@@ -24,7 +24,7 @@ document.getElementById("recordBtn").addEventListener("click", async () => {
         processAudioFile(blob);
     };
     mediaRecorder.start();
-    setTimeout(() => mediaRecorder.stop(), 7000); // record for 7 seconds
+    setTimeout(() => mediaRecorder.stop(), 7000); // record 7 seconds
 });
 
 async function processAudioFile(file) {
@@ -71,10 +71,10 @@ async function processAudioFile(file) {
                 frameCount++;
             }
         } else {
-            if (currentStart !== null && frameCount >= minFrames) {
+            if (currentStart !== null) {
                 const end = time;
                 const duration = end - currentStart;
-                if (duration >= minDurationSec) {
+                if (frameCount >= minFrames && duration >= minDurationSec) {
                     events.push({ start: currentStart, end, energy });
                 }
             }
@@ -83,11 +83,11 @@ async function processAudioFile(file) {
         }
     }
 
-    // Final check in case loud event reaches the end
-    if (currentStart !== null && frameCount >= minFrames) {
+    // Final check in case loud event runs to the end of the file
+    if (currentStart !== null) {
         const end = data.length / sampleRate;
         const duration = end - currentStart;
-        if (duration >= minDurationSec) {
+        if (frameCount >= minFrames && duration >= minDurationSec) {
             events.push({ start: currentStart, end, energy: 1.0 });
         }
     }
