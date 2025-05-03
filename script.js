@@ -48,9 +48,9 @@ async function processAudioFile(file) {
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     const data = audioBuffer.getChannelData(0);
 
-    const frameSize = 512;
+    const frameSize = 2048;
     const sampleRate = audioBuffer.sampleRate;
-    const threshold = 700000;
+    const threshold = 0.9;
     const minDurationSec = 5;
     const minFrames = Math.floor((minDurationSec * sampleRate) / frameSize);
 
