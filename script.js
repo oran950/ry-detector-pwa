@@ -71,29 +71,45 @@ async function processAudioFile(file) {
             } else {
                 frameCount++;
             }
-            lastLoudFrameIndex = i + frameSize; // keep track of end of loud
+            lastLoudFrameIndex = i + frameSize;
         } else {
             if (currentStart !== null) {
                 const endTime = lastLoudFrameIndex / sampleRate;
                 const duration = endTime - currentStart;
+
+                console.log(`⛔ Segment ended`);
+                console.log(`Start: ${currentStart.toFixed(2)}, End: ${endTime.toFixed(2)}, Duration: ${duration.toFixed(2)}, Frames: ${frameCount}`);
+
                 if (frameCount >= minFrames && duration >= minDurationSec) {
                     events.push({ start: currentStart, end: endTime, energy });
+                    console.log(`✅ Event ADDED`);
+                } else {
+                    console.log(`❌ Event IGNORED (too short)`);
                 }
+
                 currentStart = null;
                 frameCount = 0;
             }
         }
     }
 
-    // final check if audio ends during loud segment
+    // Final check if loud event reaches the end
     if (currentStart !== null) {
         const endTime = lastLoudFrameIndex / sampleRate;
         const duration = endTime - currentStart;
+
+        console.log(`⏹ Final Segment Check`);
+        console.log(`Start: ${currentStart.toFixed(2)}, End: ${endTime.toFixed(2)}, Duration: ${duration.toFixed(2)}, Frames: ${frameCount}`);
+
         if (frameCount >= minFrames && duration >= minDurationSec) {
             events.push({ start: currentStart, end: endTime, energy: 1.0 });
+            console.log(`✅ Final Event ADDED`);
+        } else {
+            console.log(`❌ Final Event IGNORED`);
         }
     }
 
+    // Show results
     if (events.length === 0) {
         resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
