@@ -71,7 +71,7 @@ async function processAudioFile(file) {
             } else {
                 frameCount++;
             }
-                lastLoudFrameIndex = i;
+            lastLoudFrameIndex = i + frameSize;
         } else {
             if (currentStart !== null) {
                 const endTime = lastLoudFrameIndex / sampleRate;
@@ -82,9 +82,9 @@ async function processAudioFile(file) {
 
                 if (frameCount >= minFrames && duration >= minDurationSec) {
                     events.push({ start: currentStart, end: endTime, energy });
-                    console.log(`✅ Event ADDED`);
+                    console.log("✅ Pushed valid loud event");
                 } else {
-                    console.log(`❌ Event IGNORED (too short)`);
+                    console.log("❌ Ignored (too short)");
                 }
 
                 currentStart = null;
@@ -93,7 +93,6 @@ async function processAudioFile(file) {
         }
     }
 
-    // Final check if loud event reaches the end
     if (currentStart !== null) {
         const endTime = lastLoudFrameIndex / sampleRate;
         const duration = endTime - currentStart;
@@ -103,13 +102,12 @@ async function processAudioFile(file) {
 
         if (frameCount >= minFrames && duration >= minDurationSec) {
             events.push({ start: currentStart, end: endTime, energy: 1.0 });
-            console.log(`✅ Final Event ADDED`);
+            console.log("✅ Final Event ADDED");
         } else {
-            console.log(`❌ Final Event IGNORED`);
+            console.log("❌ Final Event IGNORED");
         }
     }
 
-    // Show results
     if (events.length === 0) {
         resultDiv.innerHTML = "✅ No loud sounds longer than 5 seconds detected.";
         return;
