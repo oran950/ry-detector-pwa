@@ -1,12 +1,10 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crying/Screaming Detector</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
   <meta name="theme-color" content="#007BFF" />
   <style>
@@ -22,7 +20,6 @@
       --btn: #444;
       --accent: #00e676;
     }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -32,7 +29,6 @@
       max-width: 600px;
       margin: auto;
     }
-
     header {
       text-align: center;
       padding: 20px 0 10px;
@@ -40,17 +36,14 @@
       color: white;
       border-radius: 0 0 10px 10px;
     }
-
     h1 {
       font-size: 1.5rem;
       margin: 0;
     }
-
     #upload-section {
       margin: 20px 0;
       text-align: center;
     }
-
     #uploadBtn, #recordBtn, #toggleDark {
       width: 100%;
       margin-top: 10px;
@@ -62,18 +55,15 @@
       font-size: 1rem;
       cursor: pointer;
     }
-
     #waveform {
       margin-top: 15px;
       height: 100px;
       background: #e9ecef;
       border-radius: 6px;
     }
-
     #result {
       margin-top: 20px;
     }
-
     button.play-btn {
       width: 100%;
       margin-top: 8px;
@@ -84,7 +74,6 @@
       border: none;
       border-radius: 6px;
     }
-
     footer {
       text-align: center;
       margin-top: 40px;
@@ -109,23 +98,29 @@
 
   <footer>All processing is local. No files are uploaded.</footer>
 
+  <!-- WaveSurfer core and plugin -->
   <script src="https://unpkg.com/wavesurfer.js@6.6.4"></script>
   <script src="https://unpkg.com/wavesurfer.js@6.6.4/dist/plugin/wavesurfer.regions.min.js"></script>
-  <script src="script.js"></script>
+
+  <!-- Service Worker + Dark Mode toggle -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(() => console.log('✅ Service Worker registered'))
         .catch(err => console.error('Service Worker registration failed:', err));
+
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('🔁 New service worker activated. Reloading...');
+        window.location.reload();
+      });
     }
 
-    document.getElementById("toggleDark").onclick = () =>
+    document.getElementById("toggleDark").onclick = () => {
       document.body.classList.toggle("dark");
-  </script>
-</body>
-</html>
-
+    };
   </script>
 
+  <!-- Cache-busted script -->
+  <script src="script.js?v=2"></script>
 </body>
 </html>
