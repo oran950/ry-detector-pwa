@@ -1,1 +1,1 @@
-# [ry-detector-pwa](https://oran950.github.io/ry-detector-pwa/)
+# [Click here to look](https://oran950.github.io/ry-detector-pwa/)
