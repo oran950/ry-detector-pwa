@@ -131,34 +131,28 @@ async function processAudioFile(file) {
         btn.className = "play-btn";
         btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
 
-btn.onclick = () => {
-    const regionStart = evt.start;
-    const regionEnd = evt.end;
+        let isPlaying = false;
 
-    console.log("🎧 Button clicked. Attempting to play:", regionStart, regionEnd);
+        btn.onclick = () => {
+            if (!isPlaying) {
+                wavesurfer.play(evt.start, evt.end);
+                btn.textContent = `⏸ Pause ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
+                isPlaying = true;
 
-    if (wavesurfer.isPlaying()) {
-        console.log("🔇 Already playing. Now pausing.");
-        wavesurfer.pause();
-        btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-        return;
-    }
-
-    wavesurfer.play(regionStart, regionEnd);
-    btn.textContent = `⏸ Pause ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-    console.log("▶️ Play requested");
-
-    const intervalId = setInterval(() => {
-        const currentTime = wavesurfer.getCurrentTime();
-        console.log("⏱️ Checking playback:", currentTime.toFixed(2), "/", regionEnd.toFixed(2));
-        if (!wavesurfer.isPlaying() || currentTime >= regionEnd) {
-            clearInterval(intervalId);
-            btn.textContent = `▶ Play ${toMMSS(regionStart)} - ${toMMSS(regionEnd)}`;
-            console.log("⏹️ Playback ended or stopped.");
-        }
-    }, 300);
-};
-
+                const checkInterval = setInterval(() => {
+                    const currentTime = wavesurfer.getCurrentTime();
+                    if (!wavesurfer.isPlaying() || currentTime >= evt.end) {
+                        clearInterval(checkInterval);
+                        btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
+                        isPlaying = false;
+                    }
+                }, 200);
+            } else {
+                wavesurfer.pause();
+                btn.textContent = `▶ Play ${toMMSS(evt.start)} - ${toMMSS(evt.end)}`;
+                isPlaying = false;
+            }
+        };
 
         resultDiv.appendChild(text);
         resultDiv.appendChild(btn);
